@@ -23,7 +23,7 @@ export default function EventCard({event}: {event: IEvent}){
                     {occurrence.getFullYear()}. {(occurrence.getMonth() + 1).toString().padStart(2,"0")}. {occurrence.getDate().toString().padStart(2,"0")}. {occurrence.getHours().toString().padStart(2,"0")}:{occurrence.getMinutes().toString().padStart(2,"0")}
                 </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className={"h-full"}>
                 {
                     event.description ? (
                         <p>

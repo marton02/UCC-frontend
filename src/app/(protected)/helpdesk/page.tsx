@@ -1,8 +1,14 @@
-export default async function Helpdesk() {
+import IHelpdeskTicket from "@/interfaces/IHelpdeskTicket";
+import HelpdeskClient from "@/components/helpdesk/helpdesk-client";
 
-  return (
-      <div className={"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3"}>
-        <h2>Helpdesk</h2>
-      </div>
-  );
+export default function HelpdeskPage() {
+    const tickets: IHelpdeskTicket[] = []
+
+    return (
+        <div className="mx-auto w-full max-w-7xl px-4 pb-6">
+            <div className="mt-4">
+                <HelpdeskClient initialTickets={tickets} />
+            </div>
+        </div>
+    );
 }

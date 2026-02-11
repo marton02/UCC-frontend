@@ -16,28 +16,10 @@ export default async function Home() {
 
   const events = eventsRequest.data as IEvent[];
 
-  if(events.length === 0) {
-    return (
-        <Link
-            href={"/new-event"}
-        >
-
-          <Card className="mx-auto w-full max-w-sm h-full">
-            <CardContent className={"h-full flex flex-col items-center justify-center font-bold"}>
-              <div className={"bg-neutral-800 rounded-full p-2"}>
-                <Plus className={""} />
-              </div>
-              Új esemény
-            </CardContent>
-          </Card>
-        </Link>
-    );
-  }
-
   return (
-      <div className={"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3"}>
+      <div className={`grid grid-cols-1 md:grid-cols-${events.length === 0 ? "1" : "2"} lg:grid-cols-${events.length === 0 ? "1" : "4"} gap-3`}>
         {
-          events.map((event, index) => (
+          events.length > 0 && events.map((event, index) => (
             <EventCard key={index} event={event}/>
           ))
         }
@@ -45,7 +27,7 @@ export default async function Home() {
           href={"/new-event"}
         >
 
-          <Card className="mx-auto w-full max-w-sm h-full">
+          <Card className="mx-auto w-full max-w-sm h-full min-w-60 min-h-60">
             <CardContent className={"h-full flex flex-col items-center justify-center font-bold"}>
               <div className={"bg-neutral-800 rounded-full p-2"}>
                 <Plus className={""} />

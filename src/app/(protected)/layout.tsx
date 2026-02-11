@@ -2,6 +2,8 @@ import {IMenuItem} from "@/interfaces/IMenuItem";
 import Menu from "@/components/menu";
 import {UserProvider} from "@/providers/UserProvider";
 import {getCurrentUser} from "@/lib/getCurrentUser";
+import {EchoProvider} from "@/providers/EchoProvider";
+import {cookies} from "next/headers";
 
 export default async function RootLayout({
   children,
@@ -15,13 +17,16 @@ export default async function RootLayout({
   ];
 
   const user = await getCurrentUser();
+    const token = (await cookies()).get("auth")?.value ?? ""
 
   return (
     <UserProvider user={user}>
-        <Menu items={items} />
-        <main className={"pt-32 flex justify-center "}>
-            {children}
-        </main>
+        <EchoProvider bearerToken={token}>
+            <Menu items={items} />
+            <main className={"pt-32 flex justify-center "}>
+                {children}
+            </main>
+        </EchoProvider>
     </UserProvider>
   );
 }

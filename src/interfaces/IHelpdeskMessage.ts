@@ -1,9 +1,8 @@
-export type HelpdeskSender = "user" | "agent";
+import {IUser} from "@/interfaces/IUser";
 
 export default interface IHelpdeskMessage {
     id: string;
-    ticketId: string;
-    sender: HelpdeskSender;
+    sender: IUser;
     content: string;
     createdAtIso: string;
 }

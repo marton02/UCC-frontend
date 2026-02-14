@@ -1,10 +1,13 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import IHelpdeskTicket from "@/interfaces/IHelpdeskTicket";
 import INewTicketDraft from "@/interfaces/INewTicketDraft";
 import IHelpdeskMessage from "@/interfaces/IHelpdeskMessage";
 import HelpdeskShell from "@/components/helpdesk/helpdesk-shell";
+import {backend} from "@/lib/backend";
+import {toast} from "sonner";
+import {useEcho} from "@/context/EchoContext";
 
 type MobileView = "tickets" | "chat";
 
@@ -26,6 +29,60 @@ export default function HelpdeskClient({
         [tickets, selectedTicketId]
     );
 
+    const {echo, isReady} = useEcho();
+
+    const subscribedRef = useRef<Set<string>>(new Set());
+
+    useEffect(() => {
+        if (!isReady || !echo) return;
+
+        const ids = tickets.map(t => t.id).filter(Boolean);
+
+        for (const id of ids) {
+            if (subscribedRef.current.has(id)) continue;
+
+            subscribedRef.current.add(id);
+
+            echo
+                .private(`Helpdesk.Ticket.${id}`)
+                .listen(".helpdesk.message", (payload: { ticket_id: string; message: IHelpdeskMessage }) => {
+                    const ticketId = payload.ticket_id ?? id;
+                    const msg = payload.message;
+
+                    setTickets(prev => {
+                        const next = prev.map(t => {
+                            if(t.id !== ticketId) return t;
+
+                            const alreadyThere = t.messages?.some(m => m.id === msg.id);
+                            if (alreadyThere) return t;
+
+                            return {
+                                ...t,
+                                updated_at: msg.created_at ?? new Date().toLocaleString(),
+                                messages: [...(t.messages ?? []), msg],
+                            };
+                        })
+
+                        const idx = next.findIndex(t => t.id === ticketId);
+                        if (idx > 0) {
+                            const [hit] = next.splice(idx, 1);
+                            next.unshift(hit);
+                        }
+
+                        return next;
+                    })
+                });
+
+            return () =>{
+                // eslint-disable-next-line react-hooks/exhaustive-deps
+                for (const id of subscribedRef.current) {
+                    echo.leave(`private-Helpdesk.Ticket.${id}`);
+                }
+                subscribedRef.current.clear();
+            };
+        }
+    },[tickets, isReady, echo]);
+
     function handleSelectTicket(id: string) {
         setSelectedTicketId(id);
         setMobileView("chat");
@@ -39,7 +96,7 @@ export default function HelpdeskClient({
         setMobileView("chat");
     }
 
-    function handleSubmitDraft() {
+    async function handleSubmitDraft() {
         if (!draft) return;
 
         const subject = draft.subject.trim();
@@ -49,48 +106,54 @@ export default function HelpdeskClient({
 
         if (!messageText) return;
 
-        const now = new Date().toISOString();
-        const id = `t_${Math.random().toString(16).slice(2)}`;
-
-        const firstMsg: IHelpdeskMessage = {
-            id: `m_${Math.random().toString(16).slice(2)}`,
-            ticketId: id,
-            sender: "user",
-            content: messageText,
-            createdAtIso: now,
-        };
-
-        const newTicket: IHelpdeskTicket = {
-            id,
+        const req = await backend("helpdesk","POST",{
             subject,
-            status: "open",
-            updatedAtIso: now,
-            messages: [firstMsg],
-        };
+        })
+
+        if (req.statusCode !== 201) {
+            toast.error("Az új hibajegy megnyitása sikertelen.")
+            return;
+        }
+
+        const newTicket = req.data as IHelpdeskTicket;
+
+        const reqMsg = await backend(`helpdesk/${newTicket.id}/message`,"POST",{
+            content: messageText,
+        });
+
+        if(reqMsg.statusCode !== 201) {
+            toast.error("Hiba történt az üzenet küldése közben.");
+        }
+
+        const msg = reqMsg.data as IHelpdeskMessage;
+
+        newTicket.messages.push(msg);
 
         setTickets((prev) => [newTicket, ...prev]);
         setDraft(null);
-        setSelectedTicketId(id);
+        setSelectedTicketId(newTicket.id);
         setMobileView("chat");
     }
 
-    function handleSendMessage(text: string) {
+    async function handleSendMessage(text: string) {
         if (!selectedTicket) return;
 
-        const now = new Date().toISOString();
-        const msg: IHelpdeskMessage = {
-            id: `m_${Math.random().toString(16).slice(2)}`,
-            ticketId: selectedTicket.id,
-            sender: "user",
+        const req = await backend(`helpdesk/${selectedTicket.id}/message`,"POST",{
             content: text,
-            createdAtIso: now,
-        };
+        });
+
+        if(req.statusCode !== 201) {
+            toast.error("Hiba történt az üzenet küldése közben.");
+            return;
+        }
+
+        const msg = req.data as IHelpdeskMessage;
 
         setTickets((prev) =>
             prev.map((t) =>
                 t.id !== selectedTicket.id
                     ? t
-                    : { ...t, updatedAtIso: now, messages: [...t.messages, msg] }
+                    : { ...t, updated_at: new Date().toLocaleString(), messages: [...t.messages, msg] }
             )
         );
     }

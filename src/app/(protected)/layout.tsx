@@ -4,6 +4,7 @@ import {UserProvider} from "@/providers/UserProvider";
 import {getCurrentUser} from "@/lib/getCurrentUser";
 import {EchoProvider} from "@/providers/EchoProvider";
 import {cookies} from "next/headers";
+import {NotificationsListener} from "@/app/(protected)/NotificationListener";
 
 export default async function RootLayout({
   children,
@@ -26,6 +27,7 @@ export default async function RootLayout({
             <main className={"pt-32 flex justify-center "}>
                 {children}
             </main>
+            <NotificationsListener />
         </EchoProvider>
     </UserProvider>
   );

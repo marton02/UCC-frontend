@@ -40,7 +40,7 @@ export default function ChatPanel({
                 <Separator className="bg-white/10" />
 
                 <div className="flex-1 overflow-hidden p-4">
-                    <Card className="border-white/10 bg-white/[0.03] p-4">
+                    <Card className="border-white/10 bg-white/3 p-4">
                         <div className="space-y-3">
                             <div>
                                 <div className="mb-1 text-xs text-white/60">Tárgy</div>
@@ -51,7 +51,7 @@ export default function ChatPanel({
                                     }
                                     onBlur={() => setTouched(true)}
                                     placeholder="Pl.: Nem tudok belépni / 500-as hiba mentésnél"
-                                    className="bg-white/[0.03] text-white/90 placeholder:text-white/40"
+                                    className="bg-white/3 text-white/90 placeholder:text-white/40"
                                 />
                                 {touched && !subjectOk && (
                                     <div className="mt-1 text-xs text-red-300">
@@ -69,7 +69,7 @@ export default function ChatPanel({
                                     }
                                     onBlur={() => setTouched(true)}
                                     placeholder="Írd le röviden a problémát…"
-                                    className="min-h-[140px] bg-white/[0.03] text-white/90 placeholder:text-white/40"
+                                    className="min-h-35 bg-white/3 text-white/90 placeholder:text-white/40"
                                 />
                                 {touched && !messageOk && (
                                     <div className="mt-1 text-xs text-red-300">
@@ -108,7 +108,7 @@ export default function ChatPanel({
     if (!ticket) {
         return (
             <div className="flex h-full w-full items-center justify-center p-6">
-                <Card className="w-full max-w-md border-white/10 bg-white/[0.03] p-6 text-center">
+                <Card className="w-full max-w-md border-white/10 bg-white/3 p-6 text-center">
                     <div className="text-sm font-semibold text-white/85">
                         Nincs kiválasztott bejelentés
                     </div>
@@ -142,7 +142,7 @@ export default function ChatPanel({
             <div className="p-3">
                 <form
                     className="flex items-center gap-2"
-                    onSubmit={(e) => {
+                    onSubmit={async (e) => {
                         e.preventDefault();
                         const fd = new FormData(e.currentTarget);
                         const text = String(fd.get("message") ?? "").trim();
@@ -154,7 +154,7 @@ export default function ChatPanel({
                     <Input
                         name="message"
                         placeholder="Írj egy üzenetet…"
-                        className="bg-white/[0.03] text-white/90 placeholder:text-white/40"
+                        className="bg-white/3 text-white/90 placeholder:text-white/40"
                         autoComplete="off"
                     />
                     <Button type="submit" className="shrink-0">

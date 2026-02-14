@@ -5,7 +5,6 @@ import IEvent from "@/interfaces/IEvent";
 import Link from "next/link";
 import {Card, CardContent} from "@/components/ui/card";
 import {Plus} from "lucide-react";
-import {NotificationsListener} from "@/app/(protected)/tst";
 
 export default async function Home() {
 
@@ -37,7 +36,6 @@ export default async function Home() {
             </CardContent>
           </Card>
         </Link>
-          <NotificationsListener />
       </div>
   );
 }

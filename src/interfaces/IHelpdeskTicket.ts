@@ -6,6 +6,6 @@ export default interface IHelpdeskTicket {
     id: string;
     subject: string;
     status: HelpdeskStatus;
-    updatedAtIso: string;
+    updated_at: string;
     messages: IHelpdeskMessage[];
 }

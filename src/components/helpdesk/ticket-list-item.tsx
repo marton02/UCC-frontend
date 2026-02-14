@@ -23,7 +23,7 @@ export default function TicketListItem({
     active: boolean;
     onClick: () => void;
 }) {
-    const last = ticket.messages[ticket.messages.length - 1]?.content ?? "";
+    const last = ticket.messages !== undefined ? ticket.messages[ticket.messages.length - 1]?.content ?? "" : "";
 
     return (
         <button
@@ -31,7 +31,7 @@ export default function TicketListItem({
             onClick={onClick}
             className={cn(
                 "w-full rounded-xl border px-3 py-3 text-left transition",
-                "border-white/10 bg-white/[0.03] hover:bg-white/[0.06]",
+                "border-white/10 bg-white/3 hover:bg-white/6",
                 active && "border-white/20 bg-white/[0.07]"
             )}
         >
@@ -51,7 +51,7 @@ export default function TicketListItem({
             </div>
 
             <div className="mt-2 text-[11px] text-white/40">
-                Frissítve: {new Date(ticket.updatedAtIso).toLocaleString("hu-HU")}
+                Frissítve: {new Date(ticket.updated_at).toLocaleString("hu-HU")}
             </div>
         </button>
     );
